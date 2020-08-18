@@ -18,9 +18,6 @@
     "autoload": {
         "psr-4": {
             "GrantHolle\\PowerSchool\\Auth\\Traits\\": "src/"
-        },
-        "files": [
-            "vendor/illuminate/support/helpers.php"
-        ]
+        }
     }
 }
