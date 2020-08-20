@@ -2,11 +2,13 @@
     "name": "grantholle/laravel-powerschool-auth",
     "description": "Authenticate your Laravel app with PowerSchool",
     "type": "library",
+    "keywords": ["powerschool", "powerschool plugin", "sso"],
     "require": {
         "ext-curl": "*",
         "illuminate/support": "^6|^7",
         "illuminate/http": "^6|^7",
-        "grantholle/pear-openid": "^1.0"
+        "grantholle/pear-openid": "^1.0",
+        "ext-json": "*"
     },
     "license": "MIT",
     "authors": [
@@ -17,7 +19,20 @@
     ],
     "autoload": {
         "psr-4": {
-            "GrantHolle\\PowerSchool\\Auth\\Traits\\": "src/"
+            "GrantHolle\\PowerSchool\\Auth\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": "GrantHolle\\PowerSchool\\Auth\\PowerSchoolAuthServiceProvider"
+        }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^5.4"
     }
 }
