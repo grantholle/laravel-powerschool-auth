@@ -165,7 +165,8 @@ class PowerSchoolOpenIdLoginController extends Controller
      * or that need some custom logic that can't be configured.
      * The attributes set in the config's `attributes` key will overwrite
      * these if they are the same. `$data` in this context is the data
-     * received from PowerSchool.
+     * received from PowerSchool. For example, you may want to store
+     * the dcid of the user being authenticated.
      *
      * @param \Illuminate\Http\Response $request
      * @param \Illuminate\Support\Collection $data
@@ -199,7 +200,7 @@ Right now there is only an OpenID 2.0 implementation for SSO. I would like to ha
 
 That being said, PowerSchool doesn't support the `<identityAttribute/>` configuration to customize the user's identity attribute. For OpenID, as far as I can tell, it defaults to `{url}/oid/{usertype}/{username}`. In our company we have experienced weird behavior if the username contains weird characters. For example, it's valid in PowerSchool to have Chinese/Korean usernames. The identifier that gets sent is just encoded spaces, i.e. `{url}/oid/guardian/%20%20%20`. For some reason email addresses work ok, thankfully.
 
-This also means that if a user's username changes who has already authenticated in your application, they will be authenticated as a new user because their OpenID identifier has also changed. For this reason you may want to configure a different attribute, such as `email`, to be used as the identifying attribute.
+This also means that if a user's username changes who has already authenticated in your application, they will be authenticated as a new user because their OpenID identifier has also changed. For this reason you may want to configure a different attribute, such as `email`, to be used as the identifying attribute. It depends on whether you expect emails or usernames to change more often.
 
 ```php
 [
