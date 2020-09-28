@@ -216,10 +216,15 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
                     ? substr($key, 18)
                     : 'openid_claimed_id';
 
-                // Admin and teacher schools need to be decoded
-                $value = in_array($niceKey, ['adminSchools', 'teacherSchools'])
+                // Admin and teacher schools and guardian student ids need to be decoded
+                $value = in_array($niceKey, ['adminSchools', 'teacherSchools', 'studentids'])
                     ? json_decode($allData[$key])
                     : $allData[$key];
+
+                // For some reason ids are nested
+                if ($niceKey === 'studentids') {
+                    $value = json_decode($value->id);
+                }
 
                 $collection->put($niceKey, $value);
 
