@@ -7,11 +7,21 @@ use Illuminate\Support\Collection;
 
 class UserFactory
 {
-    public static function mapAttributes(array $configAttributes, Collection $data): array
+    public static function mapAttributes(array $configAttributes, Collection $data, array $config): array
     {
+        $transformers = $config['attribute_transformers'] ?? [];
+
         return collect($configAttributes)
-            ->mapWithKeys(function ($modelKey, $dataKey) use ($data) {
-                return [$modelKey => $data->get($dataKey)];
+            ->mapWithKeys(function ($modelKey, $dataKey) use ($data, $transformers) {
+                $value = $data->get($dataKey);
+                $transformer = $transformers[$dataKey] ?? null;
+
+                if ($transformer) {
+                    $invoker = new $transformer;
+                    $value = $invoker($value);
+                }
+
+                return [$modelKey => $value];
             })
             ->toArray();
     }
@@ -20,7 +30,9 @@ class UserFactory
     {
         $userType = strtolower($data->get('usertype'));
         $config = config("powerschool-auth.{$userType}");
-        $attributes = self::mapAttributes($config['identifying_attributes'], $data);
+
+        $attributes = self::mapAttributes($config['identifying_attributes'], $data, $config);
+
         $model = $config['model'];
 
         $user = $model::firstOrNew($attributes)
@@ -30,7 +42,7 @@ class UserFactory
             isset($config['attributes']) &&
             !empty($config['attributes'])
         ) {
-            $user->fill(self::mapAttributes($config['attributes'], $data));
+            $user->fill(self::mapAttributes($config['attributes'], $data, $config));
         }
 
         $user->save();
