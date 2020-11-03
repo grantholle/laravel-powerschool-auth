@@ -31,6 +31,11 @@ return [
     | Generally, these are the keys you would want to use
     | openid_claimed_id, email, and/or ref.
     |
+    | Sometimes attributes need to be transformed before being used.
+    | The `attribute_transformers` array contains a map of fields to
+    | an invokable class. The key is the attribute from PowerSchool,
+    | the value being the class name to be invoked.
+    |
     | Lastly, there is a `redirectTo` key that the user will be redirected
     | to after successfully authenticating.
     |
@@ -48,6 +53,9 @@ return [
         'identifying_attributes' => [
             'openid_claimed_id' => 'openid_identity',
         ],
+        'attribute_transformers' => [
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+        ],
         'redirectTo' => '',
     ],
 
@@ -63,6 +71,9 @@ return [
         'identifying_attributes' => [
             'openid_claimed_id' => 'openid_identity',
         ],
+        'attribute_transformers' => [
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+        ],
         'redirectTo' => '',
     ],
 
@@ -77,6 +88,9 @@ return [
         'guard' => 'web',
         'identifying_attributes' => [
             'openid_claimed_id' => 'openid_identity',
+        ],
+        'attribute_transformers' => [
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
         ],
         'redirectTo' => '',
     ],

@@ -160,7 +160,7 @@ class PowerSchoolOpenIdLoginController extends Controller
     }
 
     /**
-     * Gets the default attributes to be fill for the user
+     * Gets the default attributes to be filled for the user
      * that wouldn't be included in the data exchange with PowerSchool
      * or that need some custom logic that can't be configured.
      * The attributes set in the config's `attributes` key will overwrite
@@ -198,9 +198,13 @@ class PowerSchoolOpenIdLoginController extends Controller
 
 Right now there is only an OpenID 2.0 implementation for SSO. I would like to have SAML integration added, but it's considerably more complicated to include. There is also is the question, why add it if OpenID works? It's more configurable, but also adds a lot more complexity. I'm willing to add it once I have the bandwidth and will certainly entertain a pull request to include it.
 
-That being said, PowerSchool doesn't support the `<identityAttribute/>` configuration to customize the user's identity attribute. For OpenID, as far as I can tell, it defaults to `{url}/oid/{usertype}/{username}`. In our company we have experienced weird behavior if the username contains weird characters. For example, it's valid in PowerSchool to have Chinese/Korean usernames. The identifier that gets sent is just encoded spaces, i.e. `{url}/oid/guardian/%20%20%20`. For some reason email addresses work ok, thankfully.
+That being said, PowerSchool doesn't support the `<identityAttribute/>` configuration to customize the user's identity attribute. For OpenID, as far as I can tell, it defaults to `{url}/oid/{usertype}/{username}`. In our company we have experienced unwanted behavior if the username contains weird characters. For example, it's valid in PowerSchool to have Chinese/Korean usernames. The identifier that gets sent is just encoded spaces, i.e. `{url}/oid/guardian/%20%20%20`. For some reason email addresses work ok, thankfully.
 
 This also means that if a user's username changes who has already authenticated in your application, they will be authenticated as a new user because their OpenID identifier has also changed. For this reason you may want to configure a different attribute, such as `email`, to be used as the identifying attribute. It depends on whether you expect emails or usernames to change more often.
+
+If you do use email, I would suggest leaving the entry for `email` in `attribute_transformers` that returns the email address in a lowercase format. This way, it doesn't matter how the format it came to our application as it will be normalized in our own database.
+
+The `attribute_transformers` classes only need to have an `__invoke()` magic method that accepts the original value as the argument.
 
 ```php
 [
@@ -208,15 +212,68 @@ This also means that if a user's username changes who has already authenticated 
         'allowed' => true,
         'model' => \App\User::class,
         'attributes' => [
+            // PowerSchool attribute => our attribute
             'firstName' => 'first_name',
             'lastName' => 'last_name',
             'email' => 'email',
         ],
         'guard' => 'web',
         'identifying_attributes' => [
+            // PowerSchool attribute => our attribute
             'email' => 'email',
         ],
+        'attribute_transformers' => [
+            // PowerSchool attribute => our class
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            // See example below
+            'lastName' => MyTransformer::class,
+        ],
         'redirectTo' => '',
+    ],
+];
+```
+
+```php
+class MyTransformer
+{
+    public function __invoke($value)
+    {
+        // Manipulate the value somehow
+        return 'Mr./Ms. ' . $value;
+    }
+}
+```
+
+### Example data
+
+Here are examples of the attribute exchange from PowerSchool:
+
+```php
+$data = [
+    "openid_claimed_id" => "https://my.powerschool.com/oid/admin/jerry.smith",
+    "dcid" => "1234",
+    "usertype" => "staff",
+    "ref" => "https://my.powerschool.com/ws/v1/staff/1234",
+    "email" => "jerry.smith@example.com",
+    "firstName" => "Jerry",
+    "lastName" => "Smith",
+    "districtName" => "My District Name",
+    "districtCustomerNumber" => "AB1234",
+    "districtCountry" => "US",
+    "schoolID" => "1",
+    "usersDCID" => "1234",
+    "teacherNumber" => "111",
+    "adminSchools" => [
+        0,
+        1,
+        2,
+        3,
+        4,
+        999999,
+    ],
+    "teacherSchools" => [
+        1,
+        2,
     ],
 ];
 ```
