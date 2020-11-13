@@ -30,6 +30,11 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
             : '/home';
     }
 
+    protected function remember(): bool
+    {
+        return false;
+    }
+
     /**
      * Receives the SSO request and requests data from PS
      *
@@ -112,7 +117,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
 
         $user = UserFactory::getUserFromOpenId($data, $this->getDefaultAttributes($request, $data));
 
-        auth()->guard($config[$userType]['guard'])->login($user);
+        auth()->guard($config[$userType]['guard'])->login($user, $this->remember());
 
         return $this->sendLoginResponse($request, $user, $data);
     }
