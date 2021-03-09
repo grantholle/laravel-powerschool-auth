@@ -102,8 +102,8 @@ Now let's add the applicable routes to your `web.php` file:
 ```php
 // These paths can be whatever you want; the key thing is that they path for `authenticate`
 // matches what you've configured in your plugin.xml file for the `path` attribute
-Route::get('/auth/powerschool/openid', 'Auth\PowerSchoolOpenIdLoginController@authenticate');
-Route::get('/auth/powerschool/openid/verify', 'Auth\PowerSchoolOpenIdLoginController@login')
+Route::get('/auth/powerschool/openid', [\App\Http\Controllers\Auth\PowerSchoolOpenIdLoginController::class, 'authenticate']);
+Route::get('/auth/powerschool/openid/verify', [\App\Http\Controllers\Auth\PowerSchoolOpenIdLoginController::class, 'login'])
     ->name('openid.verify');
 ```
 
