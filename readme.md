@@ -80,7 +80,7 @@ This assumes you have a plugin installed on your instance of PowerSchool with so
 Installing that plugin will inject links in the application popout menu for all user types. We need to create a controller that handles authentication with PowerSchool.
 
 ```
-php artisan make:controller Auth\PowerSchoolOpenIdLoginController
+php artisan make:controller Auth/PowerSchoolOpenIdLoginController
 ```
 
 After the controller is generated, we need to add the trait that handles all the authentication boilerplate.
