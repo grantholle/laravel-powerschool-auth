@@ -43,7 +43,7 @@ return [
 
     'staff' => [
         'allowed' => true,
-        'model' => \App\User::class,
+        'model' => \App\Models\User::class,
         'attributes' => [
             'firstName' => 'first_name',
             'lastName' => 'last_name',
@@ -61,7 +61,7 @@ return [
 
     'guardian' => [
         'allowed' => true,
-        'model' => \App\User::class,
+        'model' => \App\Models\User::class,
         'attributes' => [
             'firstName' => 'first_name',
             'lastName' => 'last_name',
@@ -79,7 +79,7 @@ return [
 
     'student' => [
         'allowed' => true,
-        'model' => \App\User::class,
+        'model' => \App\Models\User::class,
         'attributes' => [
             'firstName' => 'first_name',
             'lastName' => 'last_name',
