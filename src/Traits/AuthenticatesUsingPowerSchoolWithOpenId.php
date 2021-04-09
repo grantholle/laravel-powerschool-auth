@@ -5,7 +5,6 @@ namespace GrantHolle\PowerSchool\Auth\Traits;
 use GrantHolle\PowerSchool\Auth\Exceptions\ConfigurationException;
 use GrantHolle\PowerSchool\Auth\UserFactory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Pear\Net\Url2;
@@ -23,7 +22,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
 
     protected function getRedirectToRoute(string $userType): string
     {
-        $config = config("powerschool-auth.{$userType}");
+        $config = config("powerschool-auth.openid.{$userType}");
 
         return isset($config['redirectTo']) && !empty($config['redirectTo'])
             ? $config['redirectTo']
@@ -100,7 +99,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
         $data = $this->normalizeExchangedData($request);
         $userType = strtolower($data->get('usertype'));
 
-        $config = config('powerschool-auth');
+        $config = config('powerschool-auth.openid');
 
         // If there is nothing configured for the user type
         // Don't authenticate and continue

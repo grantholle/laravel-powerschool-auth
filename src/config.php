@@ -4,6 +4,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Server Address
+    |--------------------------------------------------------------------------
+    |
+    | The fully qualified host name (including https) or IP address of your PowerSchool instance
+    |
+    */
+
+    'server_address' => env('POWERSCHOOL_ADDRESS'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client ID and Secret
+    |--------------------------------------------------------------------------
+    |
+    | The values of the client ID and secret obtained by installing a plugin
+    | with <oauth></oauth> in the plugin's plugin.xml manifest.
+    |
+    */
+
+    'client_id' => env('POWERSCHOOL_CLIENT_ID'),
+
+    'client_secret' => env('POWERSCHOOL_CLIENT_SECRET'),
+
+    /*
+    |--------------------------------------------------------------------------
     | User Configuration
     |--------------------------------------------------------------------------
     |
@@ -41,58 +66,116 @@ return [
     |
     */
 
-    'staff' => [
-        'allowed' => true,
-        'model' => \App\Models\User::class,
-        'attributes' => [
-            'firstName' => 'first_name',
-            'lastName' => 'last_name',
-            'email' => 'email',
+    'openid' => [
+        'staff' => [
+            'allowed' => true,
+            'model' => \App\Models\User::class,
+            'attributes' => [
+                'firstName' => 'first_name',
+                'lastName' => 'last_name',
+                'email' => 'email',
+            ],
+            'guard' => 'web',
+            'identifying_attributes' => [
+                'openid_claimed_id' => 'openid_identity',
+            ],
+            'attribute_transformers' => [
+                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            ],
+            'redirectTo' => '',
         ],
-        'guard' => 'web',
-        'identifying_attributes' => [
-            'openid_claimed_id' => 'openid_identity',
+
+        'guardian' => [
+            'allowed' => true,
+            'model' => \App\Models\User::class,
+            'attributes' => [
+                'firstName' => 'first_name',
+                'lastName' => 'last_name',
+                'email' => 'email',
+            ],
+            'guard' => 'web',
+            'identifying_attributes' => [
+                'openid_claimed_id' => 'openid_identity',
+            ],
+            'attribute_transformers' => [
+                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            ],
+            'redirectTo' => '',
         ],
-        'attribute_transformers' => [
-            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+
+        'student' => [
+            'allowed' => true,
+            'model' => \App\Models\User::class,
+            'attributes' => [
+                'firstName' => 'first_name',
+                'lastName' => 'last_name',
+                'email' => 'email',
+            ],
+            'guard' => 'web',
+            'identifying_attributes' => [
+                'openid_claimed_id' => 'openid_identity',
+            ],
+            'attribute_transformers' => [
+                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            ],
+            'redirectTo' => '',
         ],
-        'redirectTo' => '',
     ],
 
-    'guardian' => [
-        'allowed' => true,
-        'model' => \App\Models\User::class,
-        'attributes' => [
-            'firstName' => 'first_name',
-            'lastName' => 'last_name',
-            'email' => 'email',
+    'oidc' => [
+        'staff' => [
+            'allowed' => true,
+            'model' => \App\Models\User::class,
+            'attributes' => [
+                'firstName' => 'first_name',
+                'lastName' => 'last_name',
+                'email' => 'email',
+            ],
+            'guard' => 'web',
+            'identifying_attributes' => [
+                'openid_claimed_id' => 'openid_identity',
+            ],
+            'attribute_transformers' => [
+                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            ],
+            'redirectTo' => '',
         ],
-        'guard' => 'web',
-        'identifying_attributes' => [
-            'openid_claimed_id' => 'openid_identity',
-        ],
-        'attribute_transformers' => [
-            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-        ],
-        'redirectTo' => '',
-    ],
 
-    'student' => [
-        'allowed' => true,
-        'model' => \App\Models\User::class,
-        'attributes' => [
-            'firstName' => 'first_name',
-            'lastName' => 'last_name',
-            'email' => 'email',
+        'guardian' => [
+            'allowed' => true,
+            'model' => \App\Models\User::class,
+            'attributes' => [
+                'firstName' => 'first_name',
+                'lastName' => 'last_name',
+                'email' => 'email',
+            ],
+            'guard' => 'web',
+            'identifying_attributes' => [
+                'openid_claimed_id' => 'openid_identity',
+            ],
+            'attribute_transformers' => [
+                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            ],
+            'redirectTo' => '',
         ],
-        'guard' => 'web',
-        'identifying_attributes' => [
-            'openid_claimed_id' => 'openid_identity',
+
+        'student' => [
+            'allowed' => true,
+            'model' => \App\Models\User::class,
+            'attributes' => [
+                'firstName' => 'first_name',
+                'lastName' => 'last_name',
+                'email' => 'email',
+            ],
+            'guard' => 'web',
+            'identifying_attributes' => [
+                'openid_claimed_id' => 'openid_identity',
+            ],
+            'attribute_transformers' => [
+                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+            ],
+            'redirectTo' => '',
         ],
-        'attribute_transformers' => [
-            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-        ],
-        'redirectTo' => '',
     ],
 
 ];

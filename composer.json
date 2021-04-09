@@ -8,7 +8,9 @@
         "illuminate/support": "^6|^7|^8",
         "illuminate/http": "^6|^7|^8",
         "grantholle/pear-openid": "^1.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "spatie/url": "^2.0",
+        "lcobucci/jwt": "^4.1"
     },
     "license": "MIT",
     "authors": [
