@@ -143,6 +143,7 @@ trait AuthenticatesUsingPowerSchoolWithOidc
             throw new OidcException('Invalid nonce. Please try logging in again.');
         }
 
+        $config = config('powerschool-auth');
         $userType = UserFactory::getUserType($data);
 
         if (
