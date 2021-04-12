@@ -4,6 +4,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Server Address
+    |--------------------------------------------------------------------------
+    |
+    | The fully qualified host name (including https) or IP address of your PowerSchool instance
+    |
+    */
+
+    'server_address' => env('POWERSCHOOL_ADDRESS'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client ID and Secret
+    |--------------------------------------------------------------------------
+    |
+    | The values of the client ID and secret obtained by installing a plugin
+    | with <oauth></oauth> in the plugin's plugin.xml manifest.
+    |
+    */
+
+    'client_id' => env('POWERSCHOOL_CLIENT_ID'),
+
+    'client_secret' => env('POWERSCHOOL_CLIENT_SECRET'),
+
+    /*
+    |--------------------------------------------------------------------------
     | User Configuration
     |--------------------------------------------------------------------------
     |
@@ -18,9 +43,9 @@ return [
     | for the given user type.
     |
     | Attributes are configured by setting the key's value to be the attribute
-    | that is received from PowerSchool and the value's value the attribute
-    | that is used in your actual model. To forgo syncing, set `attributes`
-    | to be an empty array.
+    | that is received from PowerSchool, either from OpenID 2.0 or Connect,
+    | and the value's value the attribute that is used in your actual model.
+    | To forgo syncing, set `attributes` to be an empty array.
     |
     | The `guard` is the name of the guard to authenticate.
     |
@@ -45,9 +70,14 @@ return [
         'allowed' => true,
         'model' => \App\Models\User::class,
         'attributes' => [
+            // These attributes are from OpenID 2.0
             'firstName' => 'first_name',
             'lastName' => 'last_name',
+            // Shared with 2.0 and Connect
             'email' => 'email',
+            // These are OpenID Connect attributes
+            'given_name' => 'first_name',
+            'family_name' => 'last_name',
         ],
         'guard' => 'web',
         'identifying_attributes' => [
@@ -66,6 +96,8 @@ return [
             'firstName' => 'first_name',
             'lastName' => 'last_name',
             'email' => 'email',
+            'given_name' => 'first_name',
+            'family_name' => 'last_name',
         ],
         'guard' => 'web',
         'identifying_attributes' => [
@@ -84,6 +116,8 @@ return [
             'firstName' => 'first_name',
             'lastName' => 'last_name',
             'email' => 'email',
+            'given_name' => 'first_name',
+            'family_name' => 'last_name',
         ],
         'guard' => 'web',
         'identifying_attributes' => [

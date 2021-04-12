@@ -5,7 +5,6 @@ namespace GrantHolle\PowerSchool\Auth\Traits;
 use GrantHolle\PowerSchool\Auth\Exceptions\ConfigurationException;
 use GrantHolle\PowerSchool\Auth\UserFactory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Pear\Net\Url2;
@@ -115,7 +114,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
             return $this->sendNotAllowedResponse();
         }
 
-        $user = UserFactory::getUserFromOpenId($data, $this->getDefaultAttributes($request, $data));
+        $user = UserFactory::getUser($data, $this->getDefaultAttributes($request, $data));
 
         auth()->guard($config[$userType]['guard'])->login($user, $this->remember());
 
