@@ -5,8 +5,8 @@
     "keywords": ["powerschool", "powerschool plugin", "sso"],
     "require": {
         "ext-curl": "*",
-        "illuminate/support": "^6|^7|^8",
-        "illuminate/http": "^6|^7|^8",
+        "illuminate/support": "^7|^8",
+        "illuminate/http": "^7|^8",
         "grantholle/pear-openid": "^1.0",
         "ext-json": "*",
         "spatie/url": "^2.0",
