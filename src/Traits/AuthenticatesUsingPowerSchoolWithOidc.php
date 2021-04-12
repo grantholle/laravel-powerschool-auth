@@ -2,11 +2,12 @@
 
 namespace GrantHolle\PowerSchool\Auth\Traits;
 
-use Firebase\JWT\JWT;
 use GrantHolle\PowerSchool\Auth\Exceptions\OidcException;
+use GrantHolle\PowerSchool\Auth\UserFactory;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Lcobucci\JWT\Configuration;
@@ -26,11 +27,42 @@ trait AuthenticatesUsingPowerSchoolWithOidc
         return $response[$key] ?? null;
     }
 
+    /**
+     * This must match the `redirect-uri` in your plugin.xml
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\UrlGenerator|string
+     */
     protected function getRedirectUrl()
     {
         return url('/auth/powerschool/oidc');
     }
 
+    protected function getRedirectToRoute(string $userType): string
+    {
+        $config = config("powerschool-auth.{$userType}");
+
+        return isset($config['redirectTo']) && !empty($config['redirectTo'])
+            ? $config['redirectTo']
+            : '/home';
+    }
+
+    /**
+     * Whether to have an extended authenticated session
+     *
+     * @return bool
+     */
+    protected function remember(): bool
+    {
+        return false;
+    }
+
+    /**
+     * The scope that this will request from PowerSchool.
+     * By default it requests all data for the user.
+     *
+     * @param array $configuration
+     * @return array
+     */
     protected function getScope(array $configuration): array
     {
         return $configuration['scopes_supported'];
@@ -68,8 +100,13 @@ trait AuthenticatesUsingPowerSchoolWithOidc
             ->withQueryParameter('redirect_uri', $this->getRedirectUrl())
             ->withQueryParameter('scope', implode(' ', $this->getScope($configuration)))
             ->withQueryParameter('state', $request->session()->token())
-            ->withQueryParameter('nonce', $nonce)
-            ->withQueryParameter('_persona', Arr::first($request->only(['persona', '_persona'])) ?? '');
+            ->withQueryParameter('nonce', $nonce);
+
+        $persona = $request->only(['persona', '_persona']);
+
+        if (!empty($persona)) {
+            $url = $url->withQueryParameter('_persona', Arr::first($persona));
+        }
 
         return redirect($url);
     }
@@ -96,15 +133,82 @@ trait AuthenticatesUsingPowerSchoolWithOidc
             throw new OidcException("{$response['error']}: {$response['error_description']}");
         }
 
-        $data = Configuration::forUnsecuredSigner()
+        $dataSet = Configuration::forUnsecuredSigner()
             ->parser()
             ->parse($response['id_token'])
             ->claims();
+        $data = collect($dataSet->all());
 
         if (session()->pull('ps_oidc_nonce') !== $data->get('nonce')) {
             throw new OidcException('Invalid nonce. Please try logging in again.');
         }
 
-        dd($data->all());
+        $userType = UserFactory::getUserType($data);
+
+        if (
+            !isset($config[$userType]['allowed']) ||
+            !$config[$userType]['allowed']
+        ) {
+            return $this->sendNotAllowedResponse();
+        }
+
+        $user = UserFactory::getUser($data, $this->getDefaultAttributes($request, $data));
+
+        auth()->guard(config("powerschool-auth.{$userType}.guard"))
+            ->login($user, $this->remember());
+
+        return $this->sendLoginResponse($request, $user, $data);
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Support\Collection  $data
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendLoginResponse(Request $request, $user, Collection $data)
+    {
+        $request->session()->regenerate();
+        $userType = UserFactory::getUserType($data);
+
+        return $this->authenticated($request, $user, $data)
+            ?: redirect()->intended($this->getRedirectToRoute($userType));
+    }
+
+    /**
+     * If a user type has `'allowed' => false` in the config,
+     * this is the response to send for that user's attempt.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    protected function sendNotAllowedResponse()
+    {
+        return response('Forbidden', 403);
+    }
+
+    /**
+     * Gets the default attributes to be added for this user
+     *
+     * @param Request $request
+     * @param Collection $data
+     * @return array
+     */
+    protected function getDefaultAttributes(Request $request, Collection $data): array
+    {
+        return [];
+    }
+
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @param  \Illuminate\Support\Collection  $data
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user, Collection $data)
+    {
+        //
     }
 }

@@ -22,7 +22,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
 
     protected function getRedirectToRoute(string $userType): string
     {
-        $config = config("powerschool-auth.openid.{$userType}");
+        $config = config("powerschool-auth.{$userType}");
 
         return isset($config['redirectTo']) && !empty($config['redirectTo'])
             ? $config['redirectTo']
@@ -99,7 +99,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
         $data = $this->normalizeExchangedData($request);
         $userType = strtolower($data->get('usertype'));
 
-        $config = config('powerschool-auth.openid');
+        $config = config('powerschool-auth');
 
         // If there is nothing configured for the user type
         // Don't authenticate and continue
@@ -114,7 +114,7 @@ trait AuthenticatesUsingPowerSchoolWithOpenId
             return $this->sendNotAllowedResponse();
         }
 
-        $user = UserFactory::getUserFromOpenId($data, $this->getDefaultAttributes($request, $data));
+        $user = UserFactory::getUser($data, $this->getDefaultAttributes($request, $data));
 
         auth()->guard($config[$userType]['guard'])->login($user, $this->remember());
 

@@ -43,9 +43,9 @@ return [
     | for the given user type.
     |
     | Attributes are configured by setting the key's value to be the attribute
-    | that is received from PowerSchool and the value's value the attribute
-    | that is used in your actual model. To forgo syncing, set `attributes`
-    | to be an empty array.
+    | that is received from PowerSchool, either from OpenID 2.0 or Connect,
+    | and the value's value the attribute that is used in your actual model.
+    | To forgo syncing, set `attributes` to be an empty array.
     |
     | The `guard` is the name of the guard to authenticate.
     |
@@ -66,116 +66,67 @@ return [
     |
     */
 
-    'openid' => [
-        'staff' => [
-            'allowed' => true,
-            'model' => \App\Models\User::class,
-            'attributes' => [
-                'firstName' => 'first_name',
-                'lastName' => 'last_name',
-                'email' => 'email',
-            ],
-            'guard' => 'web',
-            'identifying_attributes' => [
-                'openid_claimed_id' => 'openid_identity',
-            ],
-            'attribute_transformers' => [
-                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-            ],
-            'redirectTo' => '',
+    'staff' => [
+        'allowed' => true,
+        'model' => \App\Models\User::class,
+        'attributes' => [
+            // These attributes are from OpenID 2.0
+            'firstName' => 'first_name',
+            'lastName' => 'last_name',
+            // Shared with 2.0 and Connect
+            'email' => 'email',
+            // These are OpenID Connect attributes
+            'given_name' => 'first_name',
+            'family_name' => 'last_name',
         ],
-
-        'guardian' => [
-            'allowed' => true,
-            'model' => \App\Models\User::class,
-            'attributes' => [
-                'firstName' => 'first_name',
-                'lastName' => 'last_name',
-                'email' => 'email',
-            ],
-            'guard' => 'web',
-            'identifying_attributes' => [
-                'openid_claimed_id' => 'openid_identity',
-            ],
-            'attribute_transformers' => [
-                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-            ],
-            'redirectTo' => '',
+        'guard' => 'web',
+        'identifying_attributes' => [
+            'openid_claimed_id' => 'openid_identity',
         ],
-
-        'student' => [
-            'allowed' => true,
-            'model' => \App\Models\User::class,
-            'attributes' => [
-                'firstName' => 'first_name',
-                'lastName' => 'last_name',
-                'email' => 'email',
-            ],
-            'guard' => 'web',
-            'identifying_attributes' => [
-                'openid_claimed_id' => 'openid_identity',
-            ],
-            'attribute_transformers' => [
-                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-            ],
-            'redirectTo' => '',
+        'attribute_transformers' => [
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
         ],
+        'redirectTo' => '',
     ],
 
-    'oidc' => [
-        'staff' => [
-            'allowed' => true,
-            'model' => \App\Models\User::class,
-            'attributes' => [
-                'firstName' => 'first_name',
-                'lastName' => 'last_name',
-                'email' => 'email',
-            ],
-            'guard' => 'web',
-            'identifying_attributes' => [
-                'openid_claimed_id' => 'openid_identity',
-            ],
-            'attribute_transformers' => [
-                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-            ],
-            'redirectTo' => '',
+    'guardian' => [
+        'allowed' => true,
+        'model' => \App\Models\User::class,
+        'attributes' => [
+            'firstName' => 'first_name',
+            'lastName' => 'last_name',
+            'email' => 'email',
+            'given_name' => 'first_name',
+            'family_name' => 'last_name',
         ],
+        'guard' => 'web',
+        'identifying_attributes' => [
+            'openid_claimed_id' => 'openid_identity',
+        ],
+        'attribute_transformers' => [
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+        ],
+        'redirectTo' => '',
+    ],
 
-        'guardian' => [
-            'allowed' => true,
-            'model' => \App\Models\User::class,
-            'attributes' => [
-                'firstName' => 'first_name',
-                'lastName' => 'last_name',
-                'email' => 'email',
-            ],
-            'guard' => 'web',
-            'identifying_attributes' => [
-                'openid_claimed_id' => 'openid_identity',
-            ],
-            'attribute_transformers' => [
-                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-            ],
-            'redirectTo' => '',
+    'student' => [
+        'allowed' => true,
+        'model' => \App\Models\User::class,
+        'attributes' => [
+            'firstName' => 'first_name',
+            'lastName' => 'last_name',
+            'email' => 'email',
+            'given_name' => 'first_name',
+            'family_name' => 'last_name',
         ],
-
-        'student' => [
-            'allowed' => true,
-            'model' => \App\Models\User::class,
-            'attributes' => [
-                'firstName' => 'first_name',
-                'lastName' => 'last_name',
-                'email' => 'email',
-            ],
-            'guard' => 'web',
-            'identifying_attributes' => [
-                'openid_claimed_id' => 'openid_identity',
-            ],
-            'attribute_transformers' => [
-                'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
-            ],
-            'redirectTo' => '',
+        'guard' => 'web',
+        'identifying_attributes' => [
+            'openid_claimed_id' => 'openid_identity',
         ],
+        'attribute_transformers' => [
+            'email' => \GrantHolle\PowerSchool\Auth\Transformers\Lowercase::class,
+        ],
+        'redirectTo' => '',
     ],
 
 ];
