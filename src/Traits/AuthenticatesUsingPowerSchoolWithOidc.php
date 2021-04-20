@@ -15,9 +15,24 @@ use Spatie\Url\Url;
 
 trait AuthenticatesUsingPowerSchoolWithOidc
 {
+    protected function getPowerSchoolUrl(): string
+    {
+        return config('powerschool-auth.server_address');
+    }
+
+    protected function getClientId(): string
+    {
+        return config('powerschool-auth.client_id');
+    }
+
+    public function getClientSecret(): string
+    {
+        return config('powerschool-auth.client_secret');
+    }
+
     protected function getOidcConfiguration(string $key = null)
     {
-        $response = Http::get(config('powerschool-auth.server_address') . '/oauth2/.well-known/openid-configuration')
+        $response = Http::get($this->getPowerSchoolUrl() . '/oauth2/.well-known/openid-configuration')
             ->json();
 
         if (is_null($key)) {
@@ -96,7 +111,7 @@ trait AuthenticatesUsingPowerSchoolWithOidc
 
         $url = Url::fromString($configuration['authorization_endpoint'])
             ->withQueryParameter('response_type', 'code')
-            ->withQueryParameter('client_id', config('powerschool-auth.client_id'))
+            ->withQueryParameter('client_id', $this->getClientId())
             ->withQueryParameter('redirect_uri', $this->getRedirectUrl())
             ->withQueryParameter('scope', implode(' ', $this->getScope($configuration)))
             ->withQueryParameter('state', $request->session()->token())
@@ -121,8 +136,8 @@ trait AuthenticatesUsingPowerSchoolWithOidc
             'grant_type' => 'authorization_code',
             'code' => $request->input('code'),
             'redirect_uri' => $this->getRedirectUrl(),
-            'client_id' => config('powerschool-auth.client_id'),
-            'client_secret' => config('powerschool-auth.client_secret'),
+            'client_id' => $this->getClientId(),
+            'client_secret' => $this->getClientSecret(),
         ];
 
         $response = Http::withBody(http_build_query($params), 'application/x-www-form-urlencoded')
