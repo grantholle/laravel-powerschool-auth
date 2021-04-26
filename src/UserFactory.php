@@ -8,6 +8,13 @@ use Illuminate\Support\Collection;
 
 class UserFactory
 {
+    protected static $findUserResolver = null;
+
+    public static function findUserUsing(callable $function)
+    {
+        static::$findUserResolver = $function;
+    }
+
     public static function mapAttributes(array $configAttributes, Collection $data, array $config): array
     {
         $transformers = $config['attribute_transformers'] ?? [];
@@ -54,8 +61,12 @@ class UserFactory
 
         $model = $config['model'];
 
-        $user = $model::firstOrNew($attributes)
-            ->fill($defaultAttributes);
+        $resolver = static::$findUserResolver ?:
+            function ($data) use ($model, $attributes) {
+                return $model::firstOrNew($attributes);
+            };
+
+        $user = $resolver($data)->fill($defaultAttributes);
 
         if (
             isset($config['attributes']) &&
