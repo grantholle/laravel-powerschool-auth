@@ -32,7 +32,8 @@ trait AuthenticatesUsingPowerSchoolWithOidc
 
     protected function getOidcConfiguration(string $key = null)
     {
-        $response = Http::get($this->getPowerSchoolUrl() . '/oauth2/.well-known/openid-configuration')
+        $response = Http::baseUrl($this->getPowerSchoolUrl())
+            ->get('/oauth2/.well-known/openid-configuration')
             ->json();
 
         if (is_null($key)) {
