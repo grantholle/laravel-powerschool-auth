@@ -45,10 +45,8 @@ trait AuthenticatesUsingPowerSchoolWithOidc
 
     /**
      * This must match the `redirect-uri` in your plugin.xml
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\UrlGenerator|string
      */
-    protected function getRedirectUrl()
+    protected function getRedirectUrl(): string
     {
         return url('/auth/powerschool/oidc');
     }
@@ -83,26 +81,6 @@ trait AuthenticatesUsingPowerSchoolWithOidc
     {
         return $configuration['scopes_supported'];
     }
-
-//    public function authenticate(Request $request)
-//    {
-//        $configuration = $this->getOidcConfiguration();
-//
-//        $oidc = new OpenIDConnectClient(
-//            config('powerschool-auth.server_address'),
-//            config('powerschool-auth.client_id'),
-//            config('powerschool-auth.client_secret')
-//        );
-//
-//        foreach ($this->getScope($configuration) as $scope) {
-//            $oidc->addScope($scope);
-//        }
-//
-//        $oidc->providerConfigParam($configuration);
-//        $oidc->setRedirectURL($this->getRedirectUrl());
-//        $oidc->authenticate();
-//        $token = $oidc->requestResourceOwnerToken(true);
-//    }
 
     public function authenticate(Request $request)
     {
