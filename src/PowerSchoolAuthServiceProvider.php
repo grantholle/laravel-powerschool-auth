@@ -10,7 +10,7 @@ class PowerSchoolAuthServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config.php' => config_path('powerschool-auth.php'),
-        ]);
+        ], ['config', 'powerschool-config']);
     }
 
     public function register()
