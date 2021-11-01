@@ -57,25 +57,25 @@ class UserFactory
     {
         $userType = static::getUserType($data);
         $config = config("powerschool-auth.{$userType}");
-        $attributes = static::mapAttributes($config['identifying_attributes'], $data, $config);
+        $attributes = static::mapAttributes($config['identifying_attributes'] ?? [], $data, $config);
 
-        $model = $config['model'];
+        $model = $config['model'] ?? '';
 
         $resolver = static::$findUserResolver ?:
             function ($data) use ($model, $attributes) {
                 return $model::firstOrNew($attributes);
             };
 
-        $user = $resolver($data)->fill($defaultAttributes);
+        $user = $resolver($data);
 
-        if (
-            isset($config['attributes']) &&
-            !empty($config['attributes'])
-        ) {
-            $user->fill(static::mapAttributes($config['attributes'], $data, $config));
+        if (method_exists($user, 'fill')) {
+            $attributes = array_merge($defaultAttributes, ($config['attributes'] ?? []));
+            $user->fill($attributes);
         }
 
-        $user->save();
+        if (method_exists($user, 'save')) {
+            $user->save();
+        }
 
         return $user;
     }
