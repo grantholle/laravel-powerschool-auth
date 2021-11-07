@@ -20,9 +20,7 @@ class UserFactory
         $transformers = $config['attribute_transformers'] ?? [];
 
         return collect($configAttributes)
-            ->filter(function ($modelKey, $dataKey) use ($data) {
-                return $data->has($dataKey);
-            })
+            ->filter(fn ($modelKey, $dataKey) => $data->has($dataKey))
             ->mapWithKeys(function ($modelKey, $dataKey) use ($data, $transformers) {
                 $value = $data->get($dataKey);
                 $transformer = $transformers[$dataKey] ?? null;
@@ -62,15 +60,16 @@ class UserFactory
         $model = $config['model'] ?? '';
 
         $resolver = static::$findUserResolver ?:
-            function ($data) use ($model, $attributes) {
+            function ($data, $model, $attributes) {
                 return $model::firstOrNew($attributes);
             };
 
-        $user = $resolver($data);
+        $user = $resolver($data, $model, $attributes);
 
-        if (method_exists($user, 'fill')) {
-            $attributes = array_merge($defaultAttributes, ($config['attributes'] ?? []));
-            $user->fill($attributes);
+        if (method_exists($user, 'forceFill')) {
+            $configAttributes = static::mapAttributes(($config['attributes'] ?? []), $data, $config);
+            $attributes = array_merge($defaultAttributes, $configAttributes);
+            $user->forceFill($attributes);
         }
 
         if (method_exists($user, 'save')) {
