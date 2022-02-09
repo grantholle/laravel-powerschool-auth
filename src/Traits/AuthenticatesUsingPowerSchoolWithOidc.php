@@ -4,7 +4,10 @@ namespace GrantHolle\PowerSchool\Auth\Traits;
 
 use GrantHolle\PowerSchool\Auth\Exceptions\OidcException;
 use GrantHolle\PowerSchool\Auth\UserFactory;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -81,6 +84,12 @@ trait AuthenticatesUsingPowerSchoolWithOidc
         return $configuration['scopes_supported'];
     }
 
+    /**
+     * Prepares the authentication request to PowerSchool
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function authenticate(Request $request)
     {
         $configuration = $this->getOidcConfiguration();
@@ -104,7 +113,11 @@ trait AuthenticatesUsingPowerSchoolWithOidc
         return redirect($url);
     }
 
-    public function login(Request $request)
+    /**
+     * Receives the response from PowerSchool
+     * that includes the JWT token and claims
+     */
+    public function login(Request $request): RedirectResponse|Response
     {
         if (!hash_equals($request->session()->token(), $request->input('state'))) {
             throw new TokenMismatchException('Invalid state. Please try logging in again.');
@@ -118,8 +131,8 @@ trait AuthenticatesUsingPowerSchoolWithOidc
             'client_secret' => $this->getClientSecret(),
         ];
 
-        $response = Http::withBody(http_build_query($params), 'application/x-www-form-urlencoded')
-            ->post($this->getOidcConfiguration('token_endpoint'))
+        $response = Http::asForm()
+            ->post($this->getOidcConfiguration('token_endpoint'), $params)
             ->json();
 
         if (isset($response['error'])) {
@@ -154,12 +167,8 @@ trait AuthenticatesUsingPowerSchoolWithOidc
 
     /**
      * Send the response after the user was authenticated.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Support\Collection  $data
-     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function sendLoginResponse(Request $request, $user, Collection $data)
+    protected function sendLoginResponse(Request $request, Authenticatable $user, Collection $data): RedirectResponse
     {
         $request->session()->regenerate();
         $userType = UserFactory::getUserType($data);
@@ -171,20 +180,14 @@ trait AuthenticatesUsingPowerSchoolWithOidc
     /**
      * If a user type has `'allowed' => false` in the config,
      * this is the response to send for that user's attempt.
-     *
-     * @return \Illuminate\Http\Response
      */
-    protected function sendNotAllowedResponse()
+    protected function sendNotAllowedResponse(): Response
     {
         return response('Forbidden', 403);
     }
 
     /**
      * Gets the default attributes to be added for this user
-     *
-     * @param Request $request
-     * @param Collection $data
-     * @return array
      */
     protected function getDefaultAttributes(Request $request, Collection $data): array
     {
@@ -193,13 +196,8 @@ trait AuthenticatesUsingPowerSchoolWithOidc
 
     /**
      * The user has been authenticated.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  mixed  $user
-     * @param  \Illuminate\Support\Collection  $data
-     * @return mixed
      */
-    protected function authenticated(Request $request, $user, Collection $data)
+    protected function authenticated(Request $request, Authenticatable $user, Collection $data): mixed
     {
         //
     }
