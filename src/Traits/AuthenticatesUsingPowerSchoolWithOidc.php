@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Lcobucci\JWT\Configuration;
 use Spatie\Url\Url;
 
 trait AuthenticatesUsingPowerSchoolWithOidc
@@ -127,11 +126,9 @@ trait AuthenticatesUsingPowerSchoolWithOidc
             throw new OidcException("{$response['error']}: {$response['error_description']}");
         }
 
-        $dataSet = Configuration::forUnsecuredSigner()
-            ->parser()
-            ->parse($response['id_token'])
-            ->claims();
-        $data = collect($dataSet->all());
+        // This one-liner parses the jwt token without a library...
+        $dataSet = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $response['id_token'])[1]))));
+        $data = collect($dataSet);
 
         if (session()->pull('ps_oidc_nonce') !== $data->get('nonce')) {
             throw new OidcException('Invalid nonce. Please try logging in again.');
