@@ -119,7 +119,7 @@ trait AuthenticatesUsingPowerSchoolWithOidc
      */
     public function login(Request $request): RedirectResponse|Response
     {
-        if (!hash_equals($request->session()->token(), $request->input('state'))) {
+        if (!hash_equals($request->session()->token(), $request->input('state', ''))) {
             throw new TokenMismatchException('Invalid state. Please try logging in again.');
         }
 
