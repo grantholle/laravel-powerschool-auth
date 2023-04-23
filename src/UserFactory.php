@@ -2,15 +2,16 @@
 
 namespace GrantHolle\PowerSchool\Auth;
 
+use Closure;
 use GrantHolle\PowerSchool\Auth\Exceptions\UnableToDetectUserTypeException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 
 class UserFactory
 {
-    protected static $findUserResolver = null;
+    protected static ?Closure $findUserResolver = null;
 
-    public static function findUserUsing(callable $function)
+    public static function findUserUsing(callable $function): void
     {
         static::$findUserResolver = $function;
     }
@@ -37,6 +38,7 @@ class UserFactory
 
     public static function getUserType(Collection $data): string
     {
+        /** @var string $type */
         $type = $data->get('usertype', $data->get('persona'));
 
         if (!$type) {
@@ -60,7 +62,7 @@ class UserFactory
         $model = $config['model'] ?? '';
 
         $resolver = static::$findUserResolver ?:
-            function ($data, $model, $attributes) {
+            function (Collection $data, string $model, array $attributes) {
                 return $model::firstOrNew($attributes);
             };
 
