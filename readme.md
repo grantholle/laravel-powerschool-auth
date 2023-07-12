@@ -282,7 +282,11 @@ Now when users visit `/auth/powerschool/oidc` in your application, the OAuth flo
 <!-- <a href="/auth/powerschool/oidc?persona=teacher">Teacher sign in</a> -->
 ```
 
-The above link will tell PowerSchool that a parent is authenticating, so it can take them directly to the /public login page.
+The above link will tell PowerSchool that a parent is authenticating, so it can take them directly to the /public login page. You can also allow for longer authenticated sessions by adding a `remember` query variable with a truthy value, such as `1` or `true`. By default, it is `false`. For example:
+
+```html
+<a href="/auth/powerschool/oidc?remember=1">Sign in with PowerSchool</a>
+```
 
 Just like the OpenID 2.0 "hook" functionality, the OIDC trait has the same ability to modify user attributes and other behavior.
 

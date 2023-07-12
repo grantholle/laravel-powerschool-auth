@@ -69,7 +69,7 @@ trait AuthenticatesUsingPowerSchoolWithOidc
      */
     protected function remember(): bool
     {
-        return false;
+        return !!session()->pull('ps_oidc_remember', false);
     }
 
     /**
@@ -95,6 +95,7 @@ trait AuthenticatesUsingPowerSchoolWithOidc
         $configuration = $this->getOidcConfiguration();
         $nonce = Str::random();
         session()->put('ps_oidc_nonce', $nonce);
+        session()->put('ps_oidc_remember', $request->boolean('remember'));
 
         $url = Url::fromString($configuration['authorization_endpoint'])
             ->withQueryParameter('response_type', 'code')
